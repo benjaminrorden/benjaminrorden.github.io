@@ -698,10 +698,21 @@ h2 {
     var target = a.getAttribute("href").slice(1);
     e.preventDefault();
     route(target);
-    try { if (location.hash.slice(1) !== target) location.hash = target; } catch (err) {}
+    try {
+      if (target === "home") {
+        // go home without leaving "#home" in the address bar
+        if (location.hash) history.pushState(null, "", location.pathname + location.search);
+      } else if (location.hash.slice(1) !== target) {
+        location.hash = target;
+      }
+    } catch (err) {}
   });
 
   window.addEventListener("hashchange", function () { route(); });
+  window.addEventListener("popstate", function () { route(); });
+
+  // tidy an old "#home" link into the plain address
+  try { if (location.hash === "#home") history.replaceState(null, "", location.pathname + location.search); } catch (err) {}
   route();
 })();
 </script>
